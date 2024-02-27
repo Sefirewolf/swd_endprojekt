@@ -1,5 +1,8 @@
 import streamlit as st
 import find_song
+import time
+import convert_mp3
+import datastorage
 
 
 def add_files_interface():
@@ -8,10 +11,19 @@ def add_files_interface():
                                      help=None, on_change=None, args=None, 
                                      kwargs=None, disabled=False, label_visibility="visible")
     if uploaded_song and st.button("Add MP3"):
+
+        frequency_list, magnitude_list = convert_mp3.perform_fourier_transform(uploaded_song)
+        spectrogram = convert_mp3.create_spectrogram(frequency_list, magnitude_list, 44.1)
+        fingerprint = convert_mp3.generate_fingerprints(spectrogram)    
+        datastorage.save_fingerprints_to_json(fingerprint, 'fingerprints.json')
         return(uploaded_song)
         
     url_input = st.text_input("Enter the URL of the song you want to add")
     if st.button("Add URL") and url_input:
+        frequency_list, magnitude_list = convert_mp3.perform_fourier_transform(uploaded_song)
+        spectrogram = convert_mp3.create_spectrogram(frequency_list, magnitude_list, 44.1)
+        fingerprint = convert_mp3.generate_fingerprints(spectrogram)    
+        datastorage.save_fingerprints_to_json(fingerprint, 'fingerprints.json')
         return(url_input)
 
 def search_song_interface():
@@ -20,11 +32,15 @@ def search_song_interface():
                                     help=None, on_change=None, args=None, 
                                     kwargs=None, disabled=False, label_visibility="visible")
     
-    if song_to_find:
-        if st.button("search"):
-            st.write("searching for song")
-            gif_url = "https://cdn.pfps.gg/pfps/2996-toothless-dancing-gif.gif"
-            st.image(gif_url)
+    if song_to_find and st.button("search"):
 
-            return(find_song.song_fingerprint(song_to_find))
+        st.write("searching for song")
+
+        frequency_list, magnitude_list = convert_mp3.perform_fourier_transform(song_to_find)
+        spectrogram = convert_mp3.create_spectrogram(frequency_list, magnitude_list, 44.1)
+        fingerprint = convert_mp3.generate_fingerprints(spectrogram)
+
+        return(find_song.song_fingerprint(song_to_find))
+    
+    #else : st.error("Upload failed!")
 
