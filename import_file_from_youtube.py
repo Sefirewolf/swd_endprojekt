@@ -1,82 +1,63 @@
 from pytube import YouTube
 from pydub import AudioSegment
-import pygame
 import os
+import string
 
-
-
-class video_download_and_convert():
+class VideoDownloadAndConvert:
     
-    def __init__(self, filepath, filename):
-        
-        self.filepath = filepath
-        self.filename = filename
+    def __init__(self, output_directory):
+        self.output_directory = output_directory
 
-    def download_video(self, url, destination):
+    def download_video_and_convert_to_mp3(self, url):
         try:
-            # YouTube-Objekt erstellen
+            
             youtube = YouTube(url)
-
-            # Video stream auswählen
+            
             video_stream = youtube.streams.get_highest_resolution()
-
-            # Video herunterladen
+            video_filepath = video_stream.download(self.output_directory)
+            filename = self._sanitize_filename(youtube.title)
+            
+            mp3_output_path = os.path.join(self.output_directory, f"{filename}.mp3")
+            self._convert_to_mp3(video_filepath, mp3_output_path)
             
             
-            video_filepath = video_stream.download(destination)
+            print(f"Video downloaded and converted to MP3. MP3 file saved at {mp3_output_path}.")
+            os.remove(video_filepath)
+            print(f"Original MP4 file has been deleted.")
             
-            actual_filename = youtube.title + "." + video_filepath.split(".")[-1]
-
-
-            print(f"Das Video wurde erfolgreich heruntergeladen und unter {destination} gespeichert.")
+            
         except Exception as e:
-            print(f"Fehler beim Herunterladen des Videos: {e}")
+                     
+            print(f"Error during download and conversion: {e}")
+                 
 
-
-
-    def convert_mp4_to_mp3_and_play(self, input_directory, output_directory):
+    def _convert_to_mp3(self, input_path, output_path):
+        
+        
         try:
-            # Iterate through all files in the input directory
-            for filename in os.listdir(input_directory):
-                # Check if the file has a .mp4 extension
-                if filename.endswith(".mp4"):
-                    # Construct the full path for the input file
-                    input_path = os.path.join(input_directory, filename)
+            
+            audio = AudioSegment.from_file(input_path, format='mp4')
+            audio.export(output_path, format='mp3')
+            print(f"The video has been successfully converted to MP3 and saved at {output_path}.")
+                       
+        except Exception as e:      
+            
+            print(f"Error during MP4 to MP3 conversion: {e}")
 
-                    # Construct the full path for the output file (change extension to .mp3)
-                    output_path = os.path.join(output_directory, filename[:-4] + ".mp3")
+    def _sanitize_filename(self, title):
+          
+        valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+        filename = ''.join(char for char in title if char in valid_chars)
+        return filename[:255]
+    
 
-                    # Convert and play the MP3 file
-                    self._convert_and_play(input_path, output_path)
+# Beispiel-Nutzung: output directory durch gewünschten speicherodner ersetzen
 
-            print("Conversion and playback of all eligible files completed.")
-        except Exception as e:
-            print(f"Error during conversion and playback: {e}")
+output_directory = "C:\\Users\\User\\Documents\\MCI\\Softwaredesign_WS23\\001_Abschlussprojekt\\swd_endprojekt\\youtube_files"
+video_processor = VideoDownloadAndConvert(output_directory)
 
-    def _convert_and_play(self, input_path, output_path):
-        # Lade die MP4-Datei
-        audio = AudioSegment.from_file(input_path, format='mp4')
+#unten url hinzufügen
 
-        # Speichere die MP3-Datei
-        audio.export(output_path, format='mp3')
+video_url = "https://www.youtube.com/watch?v=v2AC41dglnM&ab_channel=acdcVEVO"
 
-        print(f"The MP4 file has been successfully converted to MP3 and saved at {output_path}.")
-
-        # Spiele die MP3-Datei ab
-        pygame.mixer.init()
-        pygame.mixer.music.load(output_path)
-        pygame.mixer.music.play()
-
-        # Warte bis das Audio abgespielt wurde
-        pygame.time.Clock().tick(10)  # Einfacher Timer, um das Programm laufen zu lassen
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
-
-
-
-new_video = video_download_and_convert(".\youtube_files", "https://www.youtube.com/watch?v=GlLJ0yd_QvI&ab_channel=HBz")
-
-new_video.download_video(".\youtube_files", "https://www.youtube.com/watch?v=GlLJ0yd_QvI&ab_channel=HBz")
-
-
-new_video.convert_mp4_to_mp3_and_play(".\youtube_files", ".\youtube_files"  )
+video_processor.download_video_and_convert_to_mp3(video_url)

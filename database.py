@@ -23,10 +23,10 @@ class SongDatabase:
     def close_connection(self):
         self.db.close()
 
-# Beispiel-Nutzung:
-db_path = 'dejavu_database.json'  # Du kannst den Pfad anpassen
+# Pfad erstellen
+db_path = '.\database.json' 
 
-# Erstelle eine Instanz der Datenbank
+# Erstellen einer Instanz der Datenbank
 song_db = SongDatabase(db_path)
 
 # Füge ein Lied zur Datenbank hinzu
