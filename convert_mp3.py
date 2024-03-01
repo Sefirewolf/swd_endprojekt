@@ -3,7 +3,7 @@ import librosa
 import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
-
+from database import SongDatabase
 
 def perform_fourier_transform(audio_file, frame_size=2048):
     # Load the MP3 file
@@ -35,7 +35,6 @@ def perform_fourier_transform(audio_file, frame_size=2048):
 
     return frequency_list, magnitude_list
 
-
 def create_spectrogram(frequency_list, magnitude_list, sr):
     # Initialize an empty spectrogram
     spectrogram = []
@@ -53,7 +52,7 @@ def create_spectrogram(frequency_list, magnitude_list, sr):
 
     return spectrogram
 
-def generate_fingerprints(spectrogram, threshold=0):
+def generate_fingerprints(spectrogram, threshold=0, song_db=None):
     # Define parameters
     window_size = 3  # Adjust as needed
     hop_length = 1   # Adjust as needed
@@ -72,7 +71,9 @@ def generate_fingerprints(spectrogram, threshold=0):
         # Generate fingerprints for each peak
         for peak in peaks:
             fingerprint = generate_fingerprint(peak, window)
-            fingerprints.append((i, fingerprint))
+
+            # Anpassung: Speichern Sie den Fingerabdruck in der Datenbank
+            save_fingerprint_to_db(fingerprint, i, song_db)
 
     return fingerprints
 
@@ -92,3 +93,14 @@ def generate_fingerprint(peak, window):
             if window[time][freq] > 0:
                 fingerprint.append((freq, time))
     return fingerprint
+
+def save_fingerprint_to_db(fingerprint, i, song_db):
+    # Annahme: song_db ist eine Instanz Ihrer Datenbankklasse (SongDatabase)
+    # Annahme: Der Fingerabdruck wird als Tupel (i, fingerprint) übergeben
+
+    # Beispiel: Annahme, dass song_id und song_name bekannt sind
+    song_id = 1
+    song_name = 'Example Song 1'
+
+    # Füge den Fingerabdruck zur Datenbank hinzu
+    song_db.add_song(song_id=song_id, song_name=song_name, fingerprinted=True)

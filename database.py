@@ -5,8 +5,8 @@ class SongDatabase:
         self.db = TinyDB(db_path)
         self.songs_table = self.db.table('songs')
 
-    def add_song(self, song_id, song_name, fingerprinted=False):
-        self.songs_table.insert({'song_id': song_id, 'song_name': song_name, 'fingerprinted': fingerprinted})
+    def add_song(self, song_id, song_name, song_interpreter, fingerprinted=False):
+        self.songs_table.insert({'song_id': song_id, 'song_name': song_name, 'song_interpreter': song_interpreter, 'fingerprinted': fingerprinted})
 
     def get_song_by_id(self, song_id):
         Song = Query()
@@ -20,6 +20,11 @@ class SongDatabase:
         Song = Query()
         self.songs_table.update({'fingerprinted': fingerprinted}, Song.song_id == song_id)
 
+    def get_song_by_fingerprint(self, fingerprint):
+        Song = Query()
+        result = self.songs_table.get(Song.fingerprint == fingerprint)
+        return result
+
     def close_connection(self):
         self.db.close()
 
@@ -30,7 +35,7 @@ db_path = '.\database.json'
 song_db = SongDatabase(db_path)
 
 # Füge ein Lied zur Datenbank hinzu
-song_db.add_song(song_id=1, song_name='Example Song 1')
+song_db.add_song(song_id=1, song_name='Example Song 1', song_interpreter='Example Interpreter 1')
 
 # Hol dir alle Lieder in der Datenbank
 all_songs = song_db.get_all_songs()
