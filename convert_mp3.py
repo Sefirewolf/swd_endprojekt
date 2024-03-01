@@ -92,3 +92,12 @@ def generate_fingerprint(peak, window):
             if window[time][freq] > 0:
                 fingerprint.append((freq, time))
     return fingerprint
+
+def generate_hash(audio_file):
+    # Takes an audio file and transforms it into a list of hashes
+    
+    frequenzies, magnitudes = perform_fourier_transform(audio_file)
+    spectogram = create_spectrogram(frequenzies, magnitudes)
+    hashes = generate_fingerprints(spectogram)
+
+    return hashes
