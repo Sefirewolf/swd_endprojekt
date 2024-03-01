@@ -1,4 +1,3 @@
-import streamlit as st
 import librosa
 import librosa.display
 import numpy as np
@@ -36,7 +35,7 @@ def perform_fourier_transform(audio_file, frame_size=2048):
     return frequency_list, magnitude_list
 
 
-def create_spectrogram(frequency_list, magnitude_list, sr):
+"""def create_spectrogram(frequency_list, magnitude_list, sr):
     # Initialize an empty spectrogram
     spectrogram = []
 
@@ -50,6 +49,17 @@ def create_spectrogram(frequency_list, magnitude_list, sr):
 
     # Convert the list of spectrograms to a numpy array
     spectrogram = np.array(spectrogram)
+
+    return spectrogram
+"""
+
+
+def create_spectrogram(audio_file):
+    sr= 44100    # Laden der MP3-Datei
+    y, sr = librosa.load(audio_file)
+
+    # Erstellen des Spektrogramms
+    spectrogram = np.abs(librosa.stft(y))
 
     return spectrogram
 
@@ -96,8 +106,8 @@ def generate_fingerprint(peak, window):
 def generate_hash(audio_file):
     # Takes an audio file and transforms it into a list of hashes
     
-    frequenzies, magnitudes = perform_fourier_transform(audio_file)
-    spectogram = create_spectrogram(frequenzies, magnitudes)
+   # frequenzies, magnitudes = perform_fourier_transform(audio_file)
+    spectogram = create_spectrogram(audio_file)
     hashes = generate_fingerprints(spectogram)
 
     return hashes

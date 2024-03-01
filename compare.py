@@ -1,6 +1,5 @@
 import numpy as np
 import convert_mp3 as cmp3
-import database
 
 def score_match(offsets):
 
@@ -8,8 +7,6 @@ def score_match(offsets):
     hist, _ = np.histogram(differences, bins='auto')
 
     return np.max(hist)
-
-
 
 def best_match(matches):
     matched_song = None
@@ -26,7 +23,7 @@ def best_match(matches):
 
 
 def compare_files(audio_file):
-    #Cmpares audiofile to database
+    #Compares audiofile to database
 
     hash = cmp3.generate_hash(audio_file)
     match = get_maches(hash)#funktion in datenbank um alle hashes zu erlangen
